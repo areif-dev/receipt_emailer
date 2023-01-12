@@ -19,7 +19,7 @@
 
 -------------------------------------------------------------------------------
 CUST.CODE   CUST.P/O#     SHIP VIA   SLS   TAX CODE      TERMS         INV DATE
-.CASH                                     PA            CASH           7/18/22
+SMIJO 0                                   PA            CASH           7/18/22
 -------------------------------------------------------------------------------
 QUANTITY  ITEM #     DESCRIPTION                                      SELL PRICE       AMOUNT
        1  SS801167   4" GALV DRIER CLAMP                                  1.49           1.49 T
