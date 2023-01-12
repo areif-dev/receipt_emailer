@@ -18,7 +18,8 @@ def verify_argv(*args) -> bool:
         return False
     else:
         try:
-            open(args[1], "r")
+            with open(args[1], "r") as _:
+                pass
         except FileNotFoundError: 
             print(f"The file, \"{args[1]}\" does not exist")
             return False
