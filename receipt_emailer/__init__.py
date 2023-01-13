@@ -72,6 +72,13 @@ def select_customer_invoices(invoices_str: str, customer_id: str):
 
 
 def txt_to_pdf(invoices: list[str], output: str):
+    """
+    Convert a list of plaintext invoices from an ABC 3-13 report into a PDF. 
+    This should generally be called on the output of select_customer_invoices
+
+    :param invoices: A list where each item is a complete invoice from ABC
+    :param output: The path where the output PDF file should be saved
+    """
 
     canvas = Canvas(output, (8.5 * inch, 11 * inch))
     canvas.setFont("Courier", 12)
@@ -83,6 +90,9 @@ def txt_to_pdf(invoices: list[str], output: str):
         hori_pos, vert_pos = START_POS
 
         for line in invoice.split("\n"):
+
+            # Encountered a page break on a multipage invoice. Each page of the
+            # invoice should have its own page in the PDF, so start a new page
             if line.strip().startswith("INVOICE #") and "(Continued)" in line:
                 canvas.showPage()
                 canvas.setFont("Courier", 12)
