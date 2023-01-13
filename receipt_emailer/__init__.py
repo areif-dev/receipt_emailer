@@ -1,4 +1,6 @@
 import sys
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.lib.units import mm, inch
 
 
 def verify_argv(*args) -> bool:
@@ -52,10 +54,12 @@ def select_customer_invoices(invoices_str: str, customer_id: str):
         if line.strip().startswith(customer_id):
             keep_invoice = True
 
-        # At this point, either the top of an invoice or a page break between a
-        # multipage invoice has been found. If the word "continue" is in the line,
-        # then keep going because this is a multipage invoice
-        elif line.strip().startswith("INVOICE #") and "continued" not in line.lower():
+        # At this point, the loop has either reached the beginning of the invoice
+        # or a page break between a multipage invoice. If the word "continue" is 
+        # in the line, then the page is part of a long invoice, and nothing should
+        # be done yet. Otherwise, it is the start of an invoice, so break that 
+        # invoice out
+        elif line.strip().startswith("INVOICE #") and not "continue" in line.lower():
             if keep_invoice:
                 invoices_kept.append("\n".join(invoice_lines[index:]))
                 keep_invoice = False
@@ -65,6 +69,32 @@ def select_customer_invoices(invoices_str: str, customer_id: str):
     # Because the invoices were read backwards, this list is in order of most 
     # recent invoice first, oldest invoice last. 
     return invoices_kept[::-1]
+
+
+def txt_to_pdf(invoices: list[str], output: str):
+
+    canvas = Canvas(output, (8.5 * inch, 11 * inch))
+    canvas.setFont("Courier", 12)
+
+    # The default top of the page. Horizontal, Vertical
+    START_POS = (5 * mm, 11 * inch - 10 * mm)
+    
+    for invoice in invoices:
+        hori_pos, vert_pos = START_POS
+
+        for line in invoice.split("\n"):
+            if line.strip().startswith("INVOICE #") and "(Continued)" in line:
+                canvas.showPage()
+                canvas.setFont("Courier", 12)
+                hori_pos, vert_pos = START_POS
+
+            canvas.drawString(hori_pos, vert_pos, line)
+            vert_pos -= 4 * mm
+
+        canvas.showPage()
+        canvas.setFont("Courier", 12)
+
+    canvas.save()
 
 
 def main():
@@ -79,5 +109,4 @@ def main():
         invoices_str = f.read()
 
     customer_invoices = select_customer_invoices(invoices_str, customer_id)
-    for invoice in customer_invoices:
-        print(invoice)
+    txt_to_pdf(customer_invoices, "test.pdf")

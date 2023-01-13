@@ -1,3 +1,5 @@
 report.txt
 config.json
 **/__pycache__/
+.virtual/
+test.pdf
