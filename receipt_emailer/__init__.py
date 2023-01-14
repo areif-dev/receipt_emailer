@@ -223,6 +223,7 @@ def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
     server.login(SENDER_EMAIL, PASSWORD)
 
     server.sendmail(SENDER_EMAIL, to_email, message_str)
+    server.quit()
 
 
 def main():
