@@ -1,5 +1,6 @@
 import unittest
 import receipt_emailer
+from datetime import datetime
 
 
 class EmailerTestCase(unittest.TestCase):
@@ -21,6 +22,17 @@ class EmailerTestCase(unittest.TestCase):
             multiple_invoices = f.read()
 
         self.assertEqual(len(receipt_emailer.select_customer_invoices(multiple_invoices, "SMIJO 0")), 4)
+
+
+    def test_fix_invoice_number(self):
+        day_of_mill_invoice = datetime.strptime("12/31/13", "%m/%d/%y")
+        day_before_invoice = datetime.strptime("12/30/13", "%m/%d/%y")
+        day_after_invoice = datetime.strptime("1/1/14", "%m/%d/%y")
+
+        self.assertEqual(receipt_emailer.fix_invoice_number("000000", day_of_mill_invoice), "1000000")
+        self.assertEqual(receipt_emailer.fix_invoice_number("900000", day_of_mill_invoice), "900000")
+        self.assertEqual(receipt_emailer.fix_invoice_number("900000", day_before_invoice), "900000")
+        self.assertEqual(receipt_emailer.fix_invoice_number("900000", day_after_invoice), "1900000")
 
     
 if __name__ == "__main__":
