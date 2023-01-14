@@ -72,15 +72,19 @@ def fix_invoice_number(og_invoice_num: str, date: datetime) -> str:
         return og_invoice_num
 
 
-def select_customer_invoices(invoices_str: str, customer_id: str) -> list[str]:
+def select_customer_invoices(invoices_str: str, customer_id: str) -> tuple[str, str, list[str]]:
     """
     Remove any invoice from invoices_str that was not rung out to customer_id
 
     :param invoices_str: The raw, unformatted string data from the ABC 3-13 report
     :param customer_id: The unique 6 character code that ABC assigns to each customer
+    :returns: A tuple: (first invoice number, last invoice number, full list of invoices)
     """
 
     invoice_lines = invoices_str.split("\n")
+
+    start_invoice = 9999999999
+    last_invoice = 0
 
     index = len(invoice_lines)
     keep_invoice = False
@@ -114,9 +118,17 @@ def select_customer_invoices(invoices_str: str, customer_id: str) -> list[str]:
             if keep_invoice:
 
                 # ABC 3-13 only supports 6 digit invoice numbers, but RAC is up
+                # in the millions, so this section is needed to add the missing digit
                 lbs_sign_loc = line.find("#")
                 og_invoice_num = line[lbs_sign_loc + 1 :]
                 fixed_invoice_num = fix_invoice_number(og_invoice_num, invoice_date)
+
+                if int(fixed_invoice_num) > last_invoice:
+                    last_invoice = int(fixed_invoice_num)
+
+                elif int(fixed_invoice_num) < start_invoice:
+                    start_invoice = int(fixed_invoice_num)
+
                 invoice_lines[index] = line[1 : lbs_sign_loc + 1] + fixed_invoice_num
                 invoices_kept.append("\n".join(invoice_lines[index:]))
                 keep_invoice = False
@@ -125,7 +137,7 @@ def select_customer_invoices(invoices_str: str, customer_id: str) -> list[str]:
 
     # Because the invoices were read backwards, this list is in order of most
     # recent invoice first, oldest invoice last.
-    return invoices_kept[::-1]
+    return (start_invoice, last_invoice, invoices_kept[::-1])
 
 
 def txt_to_pdf(invoices: list[str], output: str):
@@ -166,6 +178,16 @@ def txt_to_pdf(invoices: list[str], output: str):
 
 
 def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
+    """
+    Email a PDF to a given email address
+    
+    :param pdf_path: The location of the PDF to be sent in the filesystem
+    :param to_email: The email address to send the PDF to
+    :param start_inv_num: The first invoice number in the list of receipts. This 
+    will be used along with end_inv_num to determine the body and subject 
+    :param end_inv_num: The last invoice number in the list of receipts. This 
+    will be used along with start_inv_num to determine the body and subject
+    """
 
     SERVER_ADDR = "smtp.mail.yahoo.com"
     PORT = 587
@@ -237,6 +259,6 @@ def main():
     with open(invoices_file_path, "r") as f:
         invoices_str = f.read()
 
-    customer_invoices = select_customer_invoices(invoices_str, customer_id)
+    start_invoice, last_invoice, customer_invoices = select_customer_invoices(invoices_str, customer_id)
     txt_to_pdf(customer_invoices, "test.pdf")
-    email_pdf("test.pdf", customer_email, "1", "2")
+    email_pdf("test.pdf", customer_email, start_invoice, last_invoice)
