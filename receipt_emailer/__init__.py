@@ -143,7 +143,7 @@ def txt_to_pdf(invoices: list[str], output: str):
     # The default top of the page. Horizontal, Vertical
     START_POS = (5 * mm, 11 * inch - 10 * mm)
 
-    for invoice in invoices:
+    for i, invoice in enumerate(invoices):
         hori_pos, vert_pos = START_POS
 
         for line in invoice.split("\n"):
@@ -158,8 +158,9 @@ def txt_to_pdf(invoices: list[str], output: str):
             canvas.drawString(hori_pos, vert_pos, line)
             vert_pos -= 4 * mm
 
-        canvas.showPage()
-        canvas.setFont("Courier", 12)
+        if i < len(invoices) - 1:
+            canvas.showPage()
+            canvas.setFont("Courier", 12)
 
     canvas.save()
 
