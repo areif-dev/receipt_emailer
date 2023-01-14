@@ -1,7 +1,14 @@
 import sys
+import json
 from datetime import datetime
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.units import mm, inch
+
+import email, smtplib, ssl
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 
 def verify_argv(*args) -> bool:
@@ -65,7 +72,7 @@ def fix_invoice_number(og_invoice_num: str, date: datetime) -> str:
         return og_invoice_num
 
 
-def select_customer_invoices(invoices_str: str, customer_id: str):
+def select_customer_invoices(invoices_str: str, customer_id: str) -> list[str]:
     """
     Remove any invoice from invoices_str that was not rung out to customer_id
 
@@ -157,6 +164,66 @@ def txt_to_pdf(invoices: list[str], output: str):
     canvas.save()
 
 
+def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
+
+    SERVER_ADDR = "smtp.mail.yahoo.com"
+    PORT = 587
+
+    with open("config.json", "r") as config_f:
+        config = json.load(config_f)
+        SENDER_EMAIL = config["sender_email"]
+        PASSWORD = config["email_password"]
+
+    message = MIMEMultipart("alternative")
+
+    if start_inv_num == end_inv_num:
+        subject = f"Reifsnyer's Ag Center Invoice {start_inv_num}"
+        msg = "Please see the attached PDF for a copy of your invoice"
+    else:
+        subject = f"Reifsnyder's Ag Center Invoices {start_inv_num} - {end_inv_num}"
+        msg = "Please see the attached PDFs for copies of your invoices.\n\n"
+
+    message["Subject"] = subject
+    message["From"] = SENDER_EMAIL
+    message["To"] = to_email
+
+    body = f"""\
+    <html>
+        <body>
+            <p>{msg}</p>
+            <p>Thank you for your business!</p>
+            <p>
+                --<br>
+                Reifsnyder's Ag Center<br>
+                7180 Bernville Rd<br>
+                Bernville, Pa 19506<br>
+                610.488.0667<br>
+                <a href="https://reifsnydersag.com" target="_blank">reifsnydersag.com</a><br>
+                <a href="https://facebook.com/reifsnydersag" target="_blank">facebook.com/reifsnydersag</a>
+            </p>
+        </body>
+    </html>
+    """
+
+    message.attach(MIMEText(body, "html"))
+
+    with open(pdf_path, "rb") as f:
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(f.read())
+
+    encoders.encode_base64(part)
+
+    part.add_header("Content-Disposition", f"attachment; filename= {pdf_path}")
+    message.attach(part)
+    message_str = message.as_string()
+
+    server = smtplib.SMTP(SERVER_ADDR, PORT)
+    server.starttls(context=ssl.create_default_context())
+    server.login(SENDER_EMAIL, PASSWORD)
+
+    server.sendmail(SENDER_EMAIL, to_email, message_str)
+
+
 def main():
 
     # Something is wrong with the command line args, so exit the program early
@@ -170,3 +237,4 @@ def main():
 
     customer_invoices = select_customer_invoices(invoices_str, customer_id)
     txt_to_pdf(customer_invoices, "test.pdf")
+    email_pdf("test.pdf", customer_email, "1", "2")
