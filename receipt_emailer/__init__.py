@@ -90,8 +90,8 @@ def select_customer_invoices(invoices_str: str, customer_id: str):
             reversed_line = line[::-1]
             invoice_date_str = reversed_line[:8][::-1]
 
-            # 3-13 prepends single digit dates with a space, so single digit 
-            # months will need to have that space removed to be passed to 
+            # 3-13 prepends single digit dates with a space, so single digit
+            # months will need to have that space removed to be passed to
             # strptime
             if invoice_date_str[0] == " ":
                 invoice_date_str = invoice_date_str[1:]
