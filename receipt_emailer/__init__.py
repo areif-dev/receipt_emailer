@@ -83,8 +83,8 @@ def select_customer_invoices(invoices_str: str, customer_id: str) -> tuple[str, 
 
     invoice_lines = invoices_str.split("\n")
 
-    start_invoice = 9999999999
-    last_invoice = 0
+    start_invoice = None
+    last_invoice = None
 
     index = len(invoice_lines)
     keep_invoice = False
@@ -123,9 +123,13 @@ def select_customer_invoices(invoices_str: str, customer_id: str) -> tuple[str, 
                 og_invoice_num = line[lbs_sign_loc + 1 :]
                 fixed_invoice_num = fix_invoice_number(og_invoice_num, invoice_date)
 
-                if int(fixed_invoice_num) > last_invoice:
+                if last_invoice is None:
+                    last_invoice = int(fixed_invoice_num)
+                elif int(fixed_invoice_num) > last_invoice:
                     last_invoice = int(fixed_invoice_num)
 
+                if start_invoice is None:
+                    start_invoice = int(fixed_invoice_num)
                 elif int(fixed_invoice_num) < start_invoice:
                     start_invoice = int(fixed_invoice_num)
 
@@ -260,5 +264,10 @@ def main():
         invoices_str = f.read()
 
     start_invoice, last_invoice, customer_invoices = select_customer_invoices(invoices_str, customer_id)
-    txt_to_pdf(customer_invoices, "test.pdf")
-    email_pdf("test.pdf", customer_email, start_invoice, last_invoice)
+    if start_invoice == last_invoice:
+        pdf_name = f"Reifsnyders_Ag_Center_Invoice_{start_invoice}.pdf"
+    else:
+        pdf_name = f"Reifsnyders_Ag_Center_Invoices_{start_invoice}_{last_invoice}.pdf"
+        
+    txt_to_pdf(customer_invoices, pdf_name)
+    email_pdf(pdf_name, customer_email, start_invoice, last_invoice)
