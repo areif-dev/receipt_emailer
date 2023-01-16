@@ -72,7 +72,9 @@ def fix_invoice_number(og_invoice_num: str, date: datetime) -> str:
         return og_invoice_num
 
 
-def select_customer_invoices(invoices_str: str, customer_id: str) -> tuple[str, str, list[str]]:
+def select_customer_invoices(
+    invoices_str: str, customer_id: str
+) -> tuple[str, str, list[str]]:
     """
     Remove any invoice from invoices_str that was not rung out to customer_id
 
@@ -184,12 +186,12 @@ def txt_to_pdf(invoices: list[str], output: str):
 def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
     """
     Email a PDF to a given email address
-    
+
     :param pdf_path: The location of the PDF to be sent in the filesystem
     :param to_email: The email address to send the PDF to
-    :param start_inv_num: The first invoice number in the list of receipts. This 
-    will be used along with end_inv_num to determine the body and subject 
-    :param end_inv_num: The last invoice number in the list of receipts. This 
+    :param start_inv_num: The first invoice number in the list of receipts. This
+    will be used along with end_inv_num to determine the body and subject
+    :param end_inv_num: The last invoice number in the list of receipts. This
     will be used along with start_inv_num to determine the body and subject
     """
 
@@ -263,11 +265,13 @@ def main():
     with open(invoices_file_path, "r") as f:
         invoices_str = f.read()
 
-    start_invoice, last_invoice, customer_invoices = select_customer_invoices(invoices_str, customer_id)
+    start_invoice, last_invoice, customer_invoices = select_customer_invoices(
+        invoices_str, customer_id
+    )
     if start_invoice == last_invoice:
         pdf_name = f"Reifsnyders_Ag_Center_Invoice_{start_invoice}.pdf"
     else:
         pdf_name = f"Reifsnyders_Ag_Center_Invoices_{start_invoice}_{last_invoice}.pdf"
-        
+
     txt_to_pdf(customer_invoices, pdf_name)
     email_pdf(pdf_name, customer_email, start_invoice, last_invoice)
