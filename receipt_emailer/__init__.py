@@ -183,7 +183,7 @@ def txt_to_pdf(invoices: list[str], output: str):
     canvas.save()
 
 
-def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
+def email_pdf(pdf_path: str, to_email: str, start_inv_num: int, end_inv_num: int):
     """
     Email a PDF to a given email address
 
@@ -200,8 +200,28 @@ def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
 
     with open("config.json", "r") as config_f:
         config = json.load(config_f)
-        SENDER_EMAIL = config["sender_email"]
-        PASSWORD = config["email_password"]
+
+        try:
+            SENDER_EMAIL = config["sender_email"]
+        except KeyError:
+            print("Missing required information in config.json: \"sender_email\"")
+            quit()
+
+        try:
+            PASSWORD = config["email_password"]
+        except KeyError:
+            print("Missing required information in config.json: \"email_password\"")
+            quit()
+
+        try:
+            email_signature = config["signature"]
+        except KeyError:
+            email_signature = ""
+
+        try:
+            sender_name = config["sender_name"]
+        except KeyError:
+            sender_name = SENDER_EMAIL.split("@")[0]
 
     message = MIMEMultipart("alternative")
 
@@ -213,7 +233,7 @@ def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
         msg = "Please see the attached PDFs for copies of your invoices.\n\n"
 
     message["Subject"] = subject
-    message["From"] = SENDER_EMAIL
+    message["From"] = f"{sender_name} <{SENDER_EMAIL}>"
     message["To"] = to_email
 
     body = f"""\
@@ -221,15 +241,7 @@ def email_pdf(pdf_path: str, to_email: str, start_inv_num, end_inv_num):
         <body>
             <p>{msg}</p>
             <p>Thank you for your business!</p>
-            <p>
-                --<br>
-                Reifsnyder's Ag Center<br>
-                7180 Bernville Rd<br>
-                Bernville, Pa 19506<br>
-                610.488.0667<br>
-                <a href="https://reifsnydersag.com" target="_blank">reifsnydersag.com</a><br>
-                <a href="https://facebook.com/reifsnydersag" target="_blank">facebook.com/reifsnydersag</a>
-            </p>
+            {email_signature}
         </body>
     </html>
     """
