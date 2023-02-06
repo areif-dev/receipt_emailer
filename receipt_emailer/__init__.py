@@ -125,14 +125,10 @@ def select_customer_invoices(
                 og_invoice_num = line[lbs_sign_loc + 1 :]
                 fixed_invoice_num = fix_invoice_number(og_invoice_num, invoice_date)
 
-                if last_invoice is None:
-                    last_invoice = int(fixed_invoice_num)
-                elif int(fixed_invoice_num) > last_invoice:
+                if last_invoice is None or int(fixed_invoice_num) > last_invoice:
                     last_invoice = int(fixed_invoice_num)
 
-                if start_invoice is None:
-                    start_invoice = int(fixed_invoice_num)
-                elif int(fixed_invoice_num) < start_invoice:
+                if start_invoice is None or int(fixed_invoice_num) < start_invoice:
                     start_invoice = int(fixed_invoice_num)
 
                 invoice_lines[index] = line[1 : lbs_sign_loc + 1] + fixed_invoice_num
