@@ -122,5 +122,6 @@ loop, 300 {
 Return
 
 GoSub, ShowForm
+Exit
 
 
