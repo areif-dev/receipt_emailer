@@ -39,10 +39,10 @@ GoSub, Run313
 Return
 
 Run313:
-if WinExist("REIFSNYDER'S AG CENTER - ABC Accounting Client")
+if WinExist("RAC Track Store - ABC Accounting Client")
     WinActivate
 else 
-    Run, "C:\ABC Software\Client4\abctwin.exe"
+    Run, "C:\ABC Software\Client4.RAC\abctwin.exe"
 
 if (CustomerId = "") {
 	Send, {F10}
@@ -60,7 +60,7 @@ if (CustomerId = "") {
 		Sleep, 500
 		Send, n
 		Sleep, 1000
-		if WinExist("REIFSNYDER'S AG CENTER - ABC Accounting Client")
+		if WinExist("RAC Track Store - ABC Accounting Client")
 			WinActivate
 	}
 
