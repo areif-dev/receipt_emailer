@@ -4,7 +4,7 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 ShowForm:
-Gui, New,, Receipt Emailer Entry
+Gui, New,, Receipt Emailer RAC Entry
 Gui, Add, Text,, Starting Invoice
 Gui, Add, Edit, vStartInvoice
 Gui, Add, Text,, Last Invoice (Leave blank if same as Starting Invoice)
