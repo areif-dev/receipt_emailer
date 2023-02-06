@@ -122,20 +122,15 @@ def select_customer_invoices(
                 # ABC 3-13 only supports 6 digit invoice numbers, but RAC is up
                 # in the millions, so this section is needed to add the missing digit
                 lbs_sign_loc = line.find("#")
-                og_invoice_num = line[lbs_sign_loc + 1 :]
-                fixed_invoice_num = fix_invoice_number(og_invoice_num, invoice_date)
+                invoice_num = line[lbs_sign_loc + 1 :]
 
-                if last_invoice is None:
-                    last_invoice = int(fixed_invoice_num)
-                elif int(fixed_invoice_num) > last_invoice:
-                    last_invoice = int(fixed_invoice_num)
+                if last_invoice is None or int(invoice_num) > last_invoice:
+                    last_invoice = int(invoice_num)
 
-                if start_invoice is None:
-                    start_invoice = int(fixed_invoice_num)
-                elif int(fixed_invoice_num) < start_invoice:
-                    start_invoice = int(fixed_invoice_num)
+                if start_invoice is None or int(invoice_num) < start_invoice:
+                    start_invoice = int(invoice_num)
 
-                invoice_lines[index] = line[1 : lbs_sign_loc + 1] + fixed_invoice_num
+                invoice_lines[index] = line[1 : lbs_sign_loc + 1] + invoice_num
                 invoices_kept.append("\n".join(invoice_lines[index:]))
                 keep_invoice = False
 
