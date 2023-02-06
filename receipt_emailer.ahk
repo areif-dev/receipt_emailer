@@ -119,9 +119,8 @@ loop, 300 {
 	else
 		Sleep, 1000
 }
-Return
+ExitApp
 
 GoSub, ShowForm
-Exit
 
 
