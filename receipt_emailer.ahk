@@ -1,4 +1,4 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
@@ -109,7 +109,7 @@ Sleep, 500
 Send, {Enter}
 
 loop, 300 {
-	if WinExist("3_13.txt - Notepad") {
+	if FileExist(A_ScriptDir . "\3_13.txt") {
 		Run, %A_ScriptDir%\.virtual\Scripts\python.exe -m receipt_emailer %A_ScriptDir%\3_13.txt "%CustomerId%" "%CustomerEmail%"
 		Sleep, 30000
 		FileDelete, %A_ScriptDir%\3_13.txt
@@ -121,5 +121,3 @@ loop, 300 {
 ExitApp
 
 GoSub, ShowForm
-
-
