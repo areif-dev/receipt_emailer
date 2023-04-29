@@ -199,13 +199,13 @@ def email_pdf(pdf_path: str, to_email: str, start_inv_num: int, end_inv_num: int
         try:
             SENDER_EMAIL = config["sender_email"]
         except KeyError:
-            print("Missing required information in config.json: \"sender_email\"")
+            print('Missing required information in config.json: "sender_email"')
             quit()
 
         try:
             PASSWORD = config["email_password"]
         except KeyError:
-            print("Missing required information in config.json: \"email_password\"")
+            print('Missing required information in config.json: "email_password"')
             quit()
 
         try:
