@@ -109,7 +109,7 @@ Sleep, 500
 Send, {Enter}
 
 loop, 300 {
-	if WinExist("3_13.txt - Notepad") {
+	if FileExist(A_ScriptDir . "\3_13.txt") {
 		Run, %A_ScriptDir%\.virtual\Scripts\python.exe -m receipt_emailer %A_ScriptDir%\3_13.txt "%CustomerId%" "%CustomerEmail%"
 		Sleep, 30000
 		FileDelete, %A_ScriptDir%\3_13.txt
