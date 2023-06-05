@@ -108,8 +108,10 @@ Send, %A_ScriptDir%\3_13.txt
 Sleep, 500
 Send, {Enter}
 
+; Match titles that contain the given string anywhere 
+SetTitleMatchMode, 2
 loop, 300 {
-	if FileExist(A_ScriptDir . "\3_13.txt") {
+	if FileExist(A_ScriptDir . "\3_13.txt") and WinExist("3_13") {
 		Run, %A_ScriptDir%\.virtual\Scripts\python.exe -m receipt_emailer %A_ScriptDir%\3_13.txt "%CustomerId%" "%CustomerEmail%"
 		Sleep, 30000
 		FileDelete, %A_ScriptDir%\3_13.txt
