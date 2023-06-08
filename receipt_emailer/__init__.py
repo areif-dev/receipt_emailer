@@ -222,7 +222,7 @@ def email_pdf(pdf_path: str, to_email: str, start_inv_num: int, end_inv_num: int
     message = MIMEMultipart("alternative")
 
     if start_inv_num == end_inv_num:
-        subject = f"Reifsnyer's Ag Center Invoice {start_inv_num}"
+        subject = f"Reifsnyder's Ag Center Invoice {start_inv_num}"
         msg = "Please see the attached PDF for a copy of your invoice."
     else:
         subject = f"Reifsnyder's Ag Center Invoices {start_inv_num} - {end_inv_num}"
