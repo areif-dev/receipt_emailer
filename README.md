@@ -3,6 +3,10 @@ Scripts to automate the process of emailing receipts to customers from the ABC a
 
 ## Installing 
 
+### Dependencies
+
+- Python 3.7+: https://python.org
+
 ### Git Clone
 
 Clone this repository to a folder you will remember
