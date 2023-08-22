@@ -3,6 +3,63 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
+ShortWait := 100
+ElementDir = %A_ScriptDir%\elements\
+
+ArScreens := []
+ArScreens[1] := ElementDir . "save_as_popup.png"
+ArScreens[2] := ElementDir . "new_invoice_screen.png"
+
+; Waits for one of any specified images to appear on screen, then return the index 
+; of the image that was found first 
+; 
+; @errors Sets ErrorLevel to 0 if an image was found. ErrorLevel to 1 if no images 
+; are found within 60 seconds. ErrorLevel to 2 if one of the images fails to search 
+; at all 
+; @param ImageFiles {String[]} Array containing the paths to the images to search for 
+; @returns {int} Returns -1 if an image failed to search at all or if no images 
+; were found in 60 seconds. Otherwise, return the index of the image that was
+; found first 
+AwaitAnyElementsLoad(ImageFiles) 
+{
+    ; Pause 250 milliseconds between each interation for 240 iteration = total 
+    ; possible wait of 60 seconds 
+    loop, 240 
+    {
+        for i, file in ImageFiles 
+        {
+            ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, %file%
+            if (ErrorLevel = 2) {
+                return -1
+            }
+            else if (ErrorLevel = 0) 
+                return i
+        }
+        Sleep, 250
+    }
+
+    return -1
+}
+
+; Wrapper for AwaitAnyElementsLoad that only searches for one ImageFile, rather 
+; than a list 
+;
+; @param ImageFile {String} The location in the filesystem of the image to search 
+; for 
+; @returns void 
+AwaitElementLoad(ImageFile)
+{
+    ImagesArray := []
+    ImagesArray[1] := ImageFile
+    FoundIndex := AwaitAnyElementsLoad(ImagesArray)
+
+    if (FoundIndex = -1 && ErrorLevel = 2) {
+        MsgBox, There was a problem searching for %ImageFile%
+    } else if (FoundIndex = -1 && ErrorLevel = 1) {
+        MsgBox, Could not find %ImageFile% in 60 seconds 
+    }
+}
+
 ; Make a system call to generate a GUID. The returned GUID will be enclosed in
 ; curly braces "{}"
 ; If the system call fails, then return a null string
@@ -16,6 +73,14 @@ CreateGUID()
     }
     return ""
 }
+
+SendCtrlN:
+Send, {Ctrl Down}
+Sleep % ShortWait * 2
+Send, n 
+Sleep % ShortWait * 2
+Send, {Ctrl Up}
+Return 
 
 ShowForm:
 Gui, New,, Receipt Emailer Entry
@@ -59,32 +124,37 @@ else
 
 if (CustomerId = "") {
         Send, {F10}
-        Sleep, 1000
+        AwaitElementLoad(ElementDir . "selection_screen.png")
         Send, r
-        Sleep, 1000
+        AwaitElementLoad(ElementDir . "accounts_receivable_screen.png")
+        GoSub, SendCtrlN
+
+        foundElementIndex := AwaitAnyElementsLoad(ArScreens)
+        if (foundElementIndex = -1) {
+            MsgBox, Accounts Receivable screen did not clear after Ctrl+N
+            return 
+        } else if (foundElementIndex = 1) {
+            Send, {Right}
+            Sleep % ShortWait * 2 
+            Send, {Enter}
+            Sleep % ShortWait * 2
+
+            if WinExist("REIFSNYDER'S AG CENTER - ABC Accounting Client")
+                WinActivate
+        }
         ControlClick, ThunderRT6TextBox2
-        Sleep, 1000
+        Sleep % ShortWait * 2
         ControlSetText, ThunderRT6TextBox2, %StartInvoice%
         Send, {Enter}
-        Sleep, 1000
-
-        if WinExist("Save changes before proceeding?") {
-                WinActivate
-                Sleep, 500
-                Send, n
-                Sleep, 1000
-                if WinExist("REIFSNYDER'S AG CENTER - ABC Accounting Client")
-                        WinActivate
-        }
-
+        Sleep % ShortWait * 2
         ControlGetText, CustomerId, ThunderRT6TextBox3
 }
 
 if (CustomerEmail = "") {
         Send, {F10}
-        Sleep, 1000
+        AwaitElementLoad(ElementDir . "selection_screen.png")
         Send, c
-        Sleep, 1000
+        AwaitElementLoad(ElementDir . "customer_screen.png")
         ControlGetText, CustomerEmail, ThunderRT6TextBox14
 }
 
@@ -105,19 +175,19 @@ IfMsgBox, Timeout
         Return
 
 Send, {F10}
-Sleep, 1000
+AwaitElementLoad(ElementDir . "selection_screen.png")
 Send, 3
-Sleep, 1000
+AwaitElementLoad(ElementDir . "3_reports_screen.png")
 Send, 13{Enter}{Enter}
-Sleep, 1000
+AwaitElementLoad(ElementDir . "3_13_reports_screen.png")
 Send, {Enter}
-Sleep, 1000
+Sleep % ShortWait * 2
 Send, %StartInvoice%{Enter}
-Sleep, 500
+Sleep % ShortWait * 2
 Send, %LastInvoice%{Enter}
-Sleep, 500
+Sleep % ShortWait * 2
 Send, x
-Sleep, 1000
+AwaitElementLoad(ElementDir . "save_file_dialogue.png")
 FileGUID := CreateGUID()
 if (StrLen(FileGUID) > 0) {
         ; The GUID creation function was successful, so make the file id the GUID
@@ -131,7 +201,7 @@ if (StrLen(FileGUID) > 0) {
 }
 TextFileLocation = %A_ScriptDir%\3_13_%FileID%.txt
 Send, %TextFileLocation%
-Sleep, 500
+Sleep % ShortWait * 2
 Send, {Enter}
 
 ; Match titles that contain the given string anywhere
