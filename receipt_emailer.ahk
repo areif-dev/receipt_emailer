@@ -76,10 +76,11 @@ CreateGUID()
 
 SendCtrlN() 
 {
+    ShortWait := 100
     Send, {Ctrl Down}
-    Sleep % ShortWait * 2
+    Sleep % ShortWait * 3
     Send, n 
-    Sleep % ShortWait * 2
+    Sleep % ShortWait * 3
     Send, {Ctrl Up}
 }
 
@@ -136,18 +137,18 @@ if (CustomerId = "") {
             return 
         } else if (foundElementIndex = 1) {
             Send, {Right}
-            Sleep % ShortWait * 2 
+            Sleep % ShortWait * 3 
             Send, {Enter}
-            Sleep % ShortWait * 2
+            Sleep % ShortWait * 3
 
             if WinExist("REIFSNYDER'S AG CENTER - ABC Accounting Client")
                 WinActivate
         }
         ControlClick, ThunderRT6TextBox2
-        Sleep % ShortWait * 2
+        Sleep % ShortWait * 3
         ControlSetText, ThunderRT6TextBox2, %StartInvoice%
         Send, {Enter}
-        Sleep % ShortWait * 2
+        Sleep % ShortWait * 3
         ControlGetText, CustomerId, ThunderRT6TextBox3
 }
 
@@ -182,11 +183,11 @@ AwaitElementLoad(ElementDir . "3_reports_screen.png")
 Send, 13{Enter}{Enter}
 AwaitElementLoad(ElementDir . "3_13_reports_screen.png")
 Send, {Enter}
-Sleep % ShortWait * 2
+Sleep % ShortWait * 3
 Send, %StartInvoice%{Enter}
-Sleep % ShortWait * 2
+Sleep % ShortWait * 3
 Send, %LastInvoice%{Enter}
-Sleep % ShortWait * 2
+Sleep % ShortWait * 3
 Send, x
 AwaitElementLoad(ElementDir . "save_file_dialogue.png")
 FileGUID := CreateGUID()
@@ -202,7 +203,7 @@ if (StrLen(FileGUID) > 0) {
 }
 TextFileLocation = %A_ScriptDir%\3_13_%FileID%.txt
 Send, %TextFileLocation%
-Sleep % ShortWait * 2
+Sleep % ShortWait * 3
 Send, {Enter}
 
 ; Match titles that contain the given string anywhere
