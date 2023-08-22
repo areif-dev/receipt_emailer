@@ -74,13 +74,14 @@ CreateGUID()
     return ""
 }
 
-SendCtrlN:
-Send, {Ctrl Down}
-Sleep % ShortWait * 2
-Send, n 
-Sleep % ShortWait * 2
-Send, {Ctrl Up}
-Return 
+SendCtrlN() 
+{
+    Send, {Ctrl Down}
+    Sleep % ShortWait * 2
+    Send, n 
+    Sleep % ShortWait * 2
+    Send, {Ctrl Up}
+}
 
 ShowForm:
 Gui, New,, Receipt Emailer Entry
@@ -127,7 +128,7 @@ if (CustomerId = "") {
         AwaitElementLoad(ElementDir . "selection_screen.png")
         Send, r
         AwaitElementLoad(ElementDir . "accounts_receivable_screen.png")
-        GoSub, SendCtrlN
+        SendCtrlN()
 
         foundElementIndex := AwaitAnyElementsLoad(ArScreens)
         if (foundElementIndex = -1) {
