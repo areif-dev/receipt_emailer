@@ -60,6 +60,10 @@ AwaitElementLoad(ImageFile)
     }
 }
 
+; Pauses execution of the program until a window with a specific name is visible.
+; Once that window is available, set it to be active 
+; 
+; @param WinName {String} The title of the window to wait for 
 AwaitWinExists(WinName)
 {
     loop, 240 {
