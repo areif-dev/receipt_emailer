@@ -60,6 +60,18 @@ AwaitElementLoad(ImageFile)
     }
 }
 
+AwaitWinExists(WinName)
+{
+    loop, 240 {
+        if (WinExist(WinName)) {
+            WinActivate
+            return
+        } else {
+            Sleep, 250
+        }
+    }
+}
+
 ; Make a system call to generate a GUID. The returned GUID will be enclosed in
 ; curly braces "{}"
 ; If the system call fails, then return a null string
@@ -189,7 +201,7 @@ Sleep % ShortWait * 3
 Send, %LastInvoice%{Enter}
 Sleep % ShortWait * 3
 Send, x
-AwaitElementLoad(ElementDir . "save_file_dialogue.png")
+AwaitWinExists("Enter File Name to Save to")
 FileGUID := CreateGUID()
 if (StrLen(FileGUID) > 0) {
         ; The GUID creation function was successful, so make the file id the GUID
